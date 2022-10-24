@@ -32,7 +32,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 	}{
 		{
 			Name:          "Root Help Flag",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       emptyFlags,
 			Exec:          returnsNil,
 			PassedArgs:    []string{"-h"},
@@ -48,7 +48,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 		},
 		{
 			Name:          "Exec Invalid Args",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       emptyFlags,
 			Exec: func(ctx context.Context, args []string) error {
 				return ErrInvalidArguments
@@ -58,7 +58,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 		},
 		{
 			Name:          "Help Requested",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       emptyFlags,
 			Exec: func(ctx context.Context, args []string) error {
 				return flag.ErrHelp
@@ -68,14 +68,14 @@ func TestCommand_ParseAndRun(t *testing.T) {
 		},
 		{
 			Name:          "Root",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       emptyFlags,
 			Exec:          returnsNil,
 			PassedArgs:    []string{},
 		},
 		{
 			Name:          "Root Flags",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       rootFlags,
 			Exec:          expectedFlags(rootFlags, fPair{"string", "bar"}, fPair{"bool", true}, fPair{"int", 42}),
 			PassedArgs:    []string{"-string", "bar", "-bool", "-int", "42"},
@@ -109,14 +109,14 @@ func TestCommand_ParseAndRun(t *testing.T) {
 		},
 		{
 			Name:          "Root Sub",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       emptyFlags,
 			Subcommands: []*Command{
 				{
 					Usage:         "sub",
 					ShortHelp:     "short help",
 					LongHelp:      "long help",
-					ArgsValidator: NoArgs,
+					ArgsValidator: NoArgs(),
 					FlagSet:       emptyFlags,
 					Exec:          returnsNil,
 				},
@@ -126,7 +126,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 		{
 			Name:          "Aliased Sub",
 			Usage:         "AliasedSubCommand",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       emptyFlags,
 			Subcommands: []*Command{
 				{
@@ -134,7 +134,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 					Aliases:       []string{"foobar"},
 					ShortHelp:     "short help",
 					LongHelp:      "long help",
-					ArgsValidator: NoArgs,
+					ArgsValidator: NoArgs(),
 					FlagSet:       emptyFlags,
 					Exec:          returnsNil,
 				},
@@ -143,14 +143,14 @@ func TestCommand_ParseAndRun(t *testing.T) {
 		},
 		{
 			Name:          "Root Flags Sub Flags",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       rootFlags,
 			Subcommands: []*Command{
 				{
 					Usage:         "sub",
 					ShortHelp:     "short help",
 					LongHelp:      "long help",
-					ArgsValidator: NoArgs,
+					ArgsValidator: NoArgs(),
 					FlagSet:       subFlags,
 					Exec: combineExecs(
 						expectedFlags(rootFlags, fPair{"string", "bar"}, fPair{"bool", true}, fPair{"int", 42}),
@@ -162,7 +162,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 		},
 		{
 			Name:          "Root Flags Sub Args",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       rootFlags,
 			Subcommands: []*Command{
 				{
@@ -181,7 +181,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 		},
 		{
 			Name:          "Root Flags -- Sub Args",
-			ArgsValidator: NoArgs,
+			ArgsValidator: NoArgs(),
 			FlagSet:       rootFlags,
 			Subcommands: []*Command{
 				{

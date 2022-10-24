@@ -9,11 +9,13 @@ import (
 type ArgsValidator func(args []string) error
 
 // NoArgs returns an error if any args are included.
-func NoArgs(args []string) error {
-	if len(args) > 0 {
-		return fmt.Errorf("was expecting to receive no arguemetns received %d", len(args))
+func NoArgs() ArgsValidator {
+	return func(args []string) error {
+		if len(args) > 0 {
+			return fmt.Errorf("was expecting to receive no arguemetns received %d", len(args))
+		}
+		return nil
 	}
-	return nil
 }
 
 // MinArgs returns an error if there are not at least N args.
