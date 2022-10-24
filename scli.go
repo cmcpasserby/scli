@@ -213,7 +213,7 @@ func defaultUsageFunc(c *Command) string {
 			fmt.Fprintf(tw, "  -%s%s%s\t%s\n", f.Name, space, def, f.Usage)
 		})
 
-		fmt.Fprintf(tw, "  -%s%s%s\t%s\n", "h", "=", "", "prints help and usage for this command or subcommand")
+		fmt.Fprintf(tw, "  -%s%s%s\t%s\n", "h", "=", "false", "prints help and usage for this command or subcommand")
 
 		tw.Flush()
 		fmt.Fprintln(&b)
