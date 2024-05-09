@@ -28,7 +28,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 		ArgsValidator ArgsValidator
 		Exec          func(ctx context.Context, args []string) error
 		PassedArgs    []string
-		WantedError   error
+		ErrCheck      func(error) bool
 	}{
 		{
 			Name:          "Root Help Flag",
@@ -36,7 +36,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 			FlagSet:       emptyFlags,
 			Exec:          returnsNil,
 			PassedArgs:    []string{"-h"},
-			WantedError:   flag.ErrHelp,
+			ErrCheck:      errorIs(flag.ErrHelp),
 		},
 		{
 			Name:          "Invalid Args",
@@ -44,7 +44,7 @@ func TestCommand_ParseAndRun(t *testing.T) {
 			FlagSet:       emptyFlags,
 			Exec:          returnsNil,
 			PassedArgs:    []string{},
-			WantedError:   ErrInvalidArguments,
+			ErrCheck:      errorIs(ErrInvalidArguments),
 		},
 		{
 			Name:          "Exec Invalid Args",
@@ -53,8 +53,15 @@ func TestCommand_ParseAndRun(t *testing.T) {
 			Exec: func(ctx context.Context, args []string) error {
 				return ErrInvalidArguments
 			},
-			PassedArgs:  []string{},
-			WantedError: ErrInvalidArguments,
+			PassedArgs: []string{},
+			ErrCheck:   errorIs(ErrInvalidArguments),
+		},
+		{
+			Name:          "No Exec",
+			ArgsValidator: NoArgs(),
+			FlagSet:       emptyFlags,
+			PassedArgs:    []string{},
+			ErrCheck:      errorAs[NoExecError](),
 		},
 		{
 			Name:          "Help Requested",
@@ -63,8 +70,8 @@ func TestCommand_ParseAndRun(t *testing.T) {
 			Exec: func(ctx context.Context, args []string) error {
 				return flag.ErrHelp
 			},
-			PassedArgs:  []string{},
-			WantedError: flag.ErrHelp,
+			PassedArgs: []string{},
+			ErrCheck:   errorIs(flag.ErrHelp),
 		},
 		{
 			Name:          "Root",
@@ -212,8 +219,8 @@ func TestCommand_ParseAndRun(t *testing.T) {
 				Exec:          tt.Exec,
 			}
 
-			if err := cmd.ParseAndRun(context.Background(), tt.PassedArgs); checkErr(err, tt.WantedError) {
-				t.Errorf("RunAndParse() error %v, wantedError %v", err, tt.WantedError)
+			if err := cmd.ParseAndRun(context.Background(), tt.PassedArgs); checkError(err, tt.ErrCheck) {
+				t.Errorf("RunAndParse() error %v", err)
 			}
 		})
 	}
@@ -272,9 +279,27 @@ func expectsArgs(wantedArgs ...string) func(ctx context.Context, args []string) 
 	}
 }
 
-func checkErr(err, wantedErr error) bool {
-	if wantedErr == nil && err == nil {
-		return false
+func errorIs(target error) func(error) bool {
+	return func(err error) bool {
+		return errors.Is(err, target)
 	}
-	return !errors.Is(err, wantedErr)
+}
+
+func errorAs[T error]() func(err error) bool {
+	return func(err error) bool {
+		var target T
+		return errors.As(err, &target)
+	}
+}
+
+func checkError(err error, f func(error) bool) bool {
+	if err != nil && f == nil {
+		return true
+	}
+
+	if err != nil && !f(err) {
+		return true
+	}
+
+	return false
 }

@@ -10,7 +10,7 @@ import (
 )
 
 type Command struct {
-	// Usage is a one liner usage message. First word of Usage is used for the Command's name.
+	// Usage is a one-liner usage message. First word of Usage is used for the Command's name.
 	// Required for sub-commands.
 	// Recommend syntax is:
 	//
@@ -33,7 +33,8 @@ type Command struct {
 	// Subcommands are optional and only needed if you application needs multiple commands.
 	Subcommands []*Command
 
-	// TODO
+	// UsageFunc allows a custom function to be provided for printing usage instructions for the current command.
+	// Optional, defaultUsageFunc will be used if none is provided.
 	UsageFunc func(c *Command) string
 
 	// FlagSet for this command. Optional, but if none is provided,
@@ -102,6 +103,7 @@ func (c *Command) Parse(args []string) error {
 	c.selected = c
 
 	if c.Exec == nil {
+		c.FlagSet.Usage()
 		return NoExecError{Command: c}
 	}
 
